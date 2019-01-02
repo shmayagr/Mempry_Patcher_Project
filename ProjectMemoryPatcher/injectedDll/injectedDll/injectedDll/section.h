@@ -6,6 +6,7 @@
 struct Section
 {
 	char name[9];
+	DWORD offset;
 	DWORD virtualAddressAbs;
 	DWORD secSize;
 	DWORD secAlignedSize;

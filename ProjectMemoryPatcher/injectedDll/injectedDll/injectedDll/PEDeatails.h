@@ -2,6 +2,7 @@
 #include"section.h"
 #include"stafx.h"
 #include<map>
+#include<vector>
 struct Section;
 class PEDeatis
 {
@@ -13,9 +14,11 @@ class PEDeatis
 	DWORD pageSize;
 	std::map<std::string, _IMAGE_SECTION_HEADER*>imgSecHMap;
 	std::map<std::string, Section> secMap;
+	std::vector<Section> SecVec;
 	DWORD firstSecAddrH;
 public:
-	PEDeatis(HMODULE);
+	PEDeatis(HMODULE mz);
+	PEDeatis() {}
 	void initVals();
 	_IMAGE_FILE_HEADER* getimgFileHeader();
 	_IMAGE_OPTIONAL_HEADER* getOptHeader();
@@ -23,7 +26,11 @@ public:
 	std::map< std::string, _IMAGE_SECTION_HEADER*> getImgSecMap();
     std::map< std::string, Section>getSecMap();
 	Section operator[](std::string);
+	Section operator[](size_t);
 	DWORD getPageAddressByAbsAddr(std::string secName, DWORD absAddress);
 	DWORD getPageAddressByOffset(std::string secName, DWORD offset);
 	DWORD getPageSize();
+	Section getSecByabsAddr(DWORD addr);
+	Section getSectionByoffset(DWORD offset);
+
 };

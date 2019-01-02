@@ -27,6 +27,7 @@ void PEDeatis::initVals()
 		imgSecHMap[currSecName] = currSecH;
 		Section currSec;
 		strcpy_s(currSec.name, currSecName);
+		currSec.offset = currSecH->VirtualAddress;
 		currSec.virtualAddressAbs = VirtualAddrbase + currSecH->VirtualAddress;
 		currSec.secSize = currSecH->Misc.VirtualSize;
 		currSec.secAlignedSize = currSec.secSize + imgOptHeader->SectionAlignment - currSec.secSize%imgOptHeader->SectionAlignment;
@@ -35,6 +36,7 @@ void PEDeatis::initVals()
 		currSec.RWX[X] = currSecH->Characteristics & IMAGE_SCN_MEM_EXECUTE;
 		currSec.pagesCount = currSec.secAlignedSize / pageSize;
 		secMap[currSecName] = currSec;
+		SecVec.push_back(currSec);
 	}
 }
 
@@ -63,6 +65,11 @@ Section PEDeatis::operator[](std::string secName)
 	return secMap[secName];
 }
 
+Section PEDeatis::operator[](size_t t)
+{
+	return SecVec[t];
+}
+
 DWORD PEDeatis::getPageAddressByAbsAddr(std::string secName, DWORD absAddress)
 {
 	Section sec = secMap[secName];
@@ -82,6 +89,24 @@ DWORD PEDeatis::getPageAddressByOffset(std::string secName, DWORD offset)
 DWORD PEDeatis::getPageSize()
 {
 	return pageSize;
+}
+
+Section PEDeatis::getSecByabsAddr(DWORD addr)
+{
+	Section notFoundSec;
+	notFoundSec.name[0] = '\0';
+	notFoundSec.secSize = 0;
+	for(std::vector<Section>::iterator it = SecVec.begin();it!=SecVec.end();++it)
+	{
+		if (addr >= it->virtualAddressAbs && addr <= it->virtualAddressAbs + it->secAlignedSize)
+			return *(it);
+	}
+	return notFoundSec;
+}
+
+Section PEDeatis::getSectionByoffset(DWORD offset)
+{
+	return getSecByabsAddr(offset + VirtualAddrbase);
 }
 
 
